@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 
 
-STUDENT_ID = '23846183'
+STUDENT_ID = '20583632'
 
 
 # Function to calculate RMSE
@@ -33,11 +33,12 @@ def build_cfmodel(n_users, n_items, embed_size, output_layer='dot'):
     elif output_layer == 'mlp':
         mlp_input = Concatenate()([user_emb, item_emb])
 
-        dense_1 = Dense(64, activation='relu')(mlp_input)
-        dense_1_dp = Dropout(0.15)(dense_1)
-        dense_2 = Dense(32, activation='relu')(dense_1_dp)
-        dense_2_dp = Dropout(0.15)(dense_2)
-        model_output = Dense(1)(dense_2_dp)
+        dense_1 = Dense(128, activation='relu')(mlp_input)
+        dense_1_dp = Dropout(0.5)(dense_1)
+        dense_2 = Dense(64, activation='relu')(dense_1_dp)
+        dense_2_dp = Dropout(0.5)(dense_2)
+        dense_3 = Dense(32, activation='relu')(dense_1_dp)
+        model_output = Dense(1)(dense_3)
     else:
         raise NotImplementedError
 
@@ -75,11 +76,11 @@ if __name__ == "__main__":
         embed_size=50,
         output_layer='mlp')
 
-    model.compile(optimizer='adam', loss='mse')
+    model.compile(optimizer='RMSprop', loss='mse')
     history = model.fit(
         [tr_users, tr_items], 
         tr_ratings, 
-        epochs=1, 
+        epochs=3, 
         verbose=1,
         callbacks=[ModelCheckpoint('model.h5')])
     y_pred = model.predict([tr_users, tr_items])
